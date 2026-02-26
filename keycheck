@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>品牌词正则测试工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: monospace;
+            margin-bottom: 20px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .result-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .matched {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .not-matched {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 5px;
+            border-left: 4px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 品牌词正则测试工具</h1>
+        
+        <label for="keywords"><strong>输入关键词（每行一个）：</strong></label>
+        <textarea id="keywords" placeholder="momo heechul&#10;webull&#10;富途&#10;futu"></textarea>
+        
+        <button onclick="runTest()">🚀 开始测试</button>
+        
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        // 品牌词正则
+        const brandPattern = /\b(moomoo|moomou|moumou|momo|mumu|moomo|moumoo|mumo|moo|moo moo|moo mok|futu|futunn|fu tu)\b|ｍｏｏ|富途|富 途|富途牛牛|ムー|もー|モー|もう|富淘|富图|富屠|富土|富圖|富牛牛|富塗/i;
+
+        function runTest() {
+            const textarea = document.getElementById('keywords');
+            const resultsDiv = document.getElementById('results');
+            
+            // 获取并处理输入
+            const keywords = textarea.value
+                .split('\n')
+                .map(k => k.trim())
+                .filter(k => k.length > 0);
+            
+            if (keywords.length === 0) {
+                resultsDiv.innerHTML = '<div class="summary">⚠️ 请输入至少一个关键词</div>';
+                return;
+            }
+            
+            // 测试每个关键词
+            let matchedCount = 0;
+            let notMatchedCount = 0;
+            let html = '';
+            
+            keywords.forEach(keyword => {
+                const lowerKeyword = keyword.toLowerCase();
+                const isMatch = brandPattern.test(lowerKeyword);
+                const matchResult = isMatch ? lowerKeyword.match(brandPattern) : null;
+                
+                if (isMatch) {
+                    matchedCount++;
+                    html += `
+                        <div class="result-item matched">
+                            ✅ <strong>${escapeHtml(keyword)}</strong>
+                            <br>
+                            <small>匹配内容: "${escapeHtml(matchResult[0])}"</small>
+                        </div>
+                    `;
+                } else {
+                    notMatchedCount++;
+                    html += `
+                        <div class="result-item not-matched">
+                            ❌ <strong>${escapeHtml(keyword)}</strong>
+                        </div>
+                    `;
+                }
+            });
+            
+            // 添加汇总
+            html = `
+                <div class="summary">
+                    <strong>📊 测试汇总</strong><br>
+                    总计: ${keywords.length} 个关键词<br>
+                    ✅ 命中品牌词: ${matchedCount} 个<br>
+                    ❌ 未命中: ${notMatchedCount} 个
+                </div>
+            ` + html;
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
