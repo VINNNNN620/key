@@ -2,7 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>正则测试工具 - 支持多种输入格式</title>
+    <title>正则测试工具 - 支持Excel导出</title>
+    <!-- 引入 SheetJS 库 -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -72,8 +74,13 @@
             font-family: 'Consolas', monospace;
         }
         
-        .test-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .test-button, .export-button {
             color: white;
             border: none;
             padding: 15px 40px;
@@ -82,11 +89,29 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin: 20px 0;
+            flex: 1;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         .test-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .export-button {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            display: none;
+        }
+        .export-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+        .export-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
         
         .results { margin-top: 20px; }
@@ -147,13 +172,31 @@
             opacity: 0.9;
             margin-top: 5px;
         }
+        
+        .export-info {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+        .export-info.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🎯 正则测试工具</h1>
-            <p>支持多种输入格式 - 智能解析版</p>
+            <p>支持多种输入格式 - 智能解析版 - Excel导出</p>
         </div>
         
         <div class="content">
@@ -178,10 +221,19 @@ momo heechul
 moo moo
 fu tu
 富途证券
-もーもー</textarea>
+もーもー
+momentum
+future</textarea>
             </div>
             
-            <button class="test-button" onclick="runTest()">🚀 开始测试</button>
+            <div class="button-group">
+                <button class="test-button" onclick="runTest()">🚀 开始测试</button>
+                <button class="export-button" id="exportBtn" onclick="exportToExcel()">📊 导出Excel</button>
+            </div>
+            
+            <div class="export-info" id="exportInfo">
+                ✅ Excel文件已成功导出！
+            </div>
             
             <div class="stats" id="stats" style="display: none;">
                 <div class="stat-card">
@@ -203,32 +255,40 @@ fu tu
     </div>
 
     <script>
+        // 全局变量存储测试结果
+        let testResults = [];
+        let currentRegex = '';
+        
         function runTest() {
             const regexInput = document.getElementById('regexInput').value.trim();
             const testInput = document.getElementById('testInput').value.trim();
             const resultsDiv = document.getElementById('results');
             const statsDiv = document.getElementById('stats');
+            const exportBtn = document.getElementById('exportBtn');
+            const exportInfo = document.getElementById('exportInfo');
+            
+            // 隐藏导出成功提示
+            exportInfo.classList.remove('show');
             
             if (!regexInput || !testInput) {
                 alert('请输入正则表达式和测试关键词！');
                 return;
             }
             
-            // ✨ 智能解析正则表达式
+            // 智能解析正则表达式
             let regex;
             try {
-                // 检查是否是正则字面量格式 /pattern/flags 或 /pattern/flags;
                 const regexMatch = regexInput.match(/^\/(.+?)\/([gimsuvy]*);?$/);
                 
                 if (regexMatch) {
-                    // 输入格式：/pattern/flags; 或 /pattern/flags
                     const pattern = regexMatch[1];
-                    const flags = regexMatch[2] || 'i'; // 如果没有标志，默认使用 i
+                    const flags = regexMatch[2] || 'i';
                     regex = new RegExp(pattern, flags);
+                    currentRegex = `/${pattern}/${flags}`;
                     console.log('✅ 解析正则字面量 - 模式:', pattern, '| 标志:', flags);
                 } else {
-                    // 输入格式：纯模式字符串
                     regex = new RegExp(regexInput, 'ig');
+                    currentRegex = `/${regexInput}/ig`;
                     console.log('✅ 使用纯模式 - 自动添加 ig 标志');
                 }
             } catch (e) {
@@ -242,14 +302,22 @@ fu tu
             let matchCount = 0;
             let noMatchCount = 0;
             let html = '';
+            testResults = []; // 重置结果数组
             
             keywords.forEach(keyword => {
                 const matches = keyword.match(regex);
                 
                 if (matches && matches.length > 0) {
                     matchCount++;
-                    // 去重
                     const uniqueMatches = [...new Set(matches)];
+                    
+                    // 存储结果用于导出
+                    testResults.push({
+                        keyword: keyword,
+                        status: '✅ 匹配',
+                        matchCount: uniqueMatches.length,
+                        matches: uniqueMatches.join(', ')
+                    });
                     
                     html += `
                         <div class="result-item match">
@@ -261,6 +329,15 @@ fu tu
                     `;
                 } else {
                     noMatchCount++;
+                    
+                    // 存储结果用于导出
+                    testResults.push({
+                        keyword: keyword,
+                        status: '❌ 未匹配',
+                        matchCount: 0,
+                        matches: ''
+                    });
+                    
                     html += `
                         <div class="result-item no-match">
                             <div class="result-keyword">❌ ${escapeHtml(keyword)}</div>
@@ -278,6 +355,79 @@ fu tu
             document.getElementById('totalCount').textContent = keywords.length;
             document.getElementById('matchCount').textContent = matchCount;
             document.getElementById('noMatchCount').textContent = noMatchCount;
+            
+            // 显示导出按钮
+            exportBtn.style.display = 'block';
+        }
+        
+        function exportToExcel() {
+            if (testResults.length === 0) {
+                alert('没有可导出的测试结果！');
+                return;
+            }
+            
+            // 准备Excel数据
+            const excelData = [];
+            
+            // 添加表头信息
+            excelData.push(['正则表达式测试报告']);
+            excelData.push(['生成时间', new Date().toLocaleString('zh-CN')]);
+            excelData.push(['正则表达式', currentRegex]);
+            excelData.push(['总测试数', testResults.length]);
+            excelData.push(['匹配成功', testResults.filter(r => r.status === '✅ 匹配').length]);
+            excelData.push(['未匹配', testResults.filter(r => r.status === '❌ 未匹配').length]);
+            excelData.push([]); // 空行
+            
+            // 添加表头
+            excelData.push(['序号', '测试关键词', '匹配状态', '匹配数量', '匹配内容']);
+            
+            // 添加数据
+            testResults.forEach((result, index) => {
+                excelData.push([
+                    index + 1,
+                    result.keyword,
+                    result.status,
+                    result.matchCount,
+                    result.matches
+                ]);
+            });
+            
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            
+            // 设置列宽
+            ws['!cols'] = [
+                { wch: 8 },   // 序号
+                { wch: 30 },  // 测试关键词
+                { wch: 12 },  // 匹配状态
+                { wch: 10 },  // 匹配数量
+                { wch: 50 }   // 匹配内容
+            ];
+            
+            // 合并表头单元格（标题行）
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }  // 合并第一行的5列
+            ];
+            
+            // 添加工作表
+            XLSX.utils.book_append_sheet(wb, ws, '测试结果');
+            
+            // 生成文件名
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+            const filename = `正则测试结果_${timestamp}.xlsx`;
+            
+            // 导出文件
+            XLSX.writeFile(wb, filename);
+            
+            // 显示成功提示
+            const exportInfo = document.getElementById('exportInfo');
+            exportInfo.classList.add('show');
+            setTimeout(() => {
+                exportInfo.classList.remove('show');
+            }, 3000);
+            
+            console.log('✅ Excel文件已导出:', filename);
         }
         
         function escapeHtml(text) {
