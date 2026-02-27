@@ -303,38 +303,26 @@
             <p>测试你的正则表达式是否能准确捕获目标内容</p>
         </div>
         
-        <!-- 标签页 -->
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('keyword')">
-                📝 词正则
-            </div>
-            <div class="tab" onclick="switchTab('url')">
-                🔗 URL正则
-            </div>
+            <div class="tab active" onclick="switchTab('keyword')">📝 词正则</div>
+            <div class="tab" onclick="switchTab('url')">🔗 URL正则</div>
         </div>
         
-        <!-- 词正则标签页内容 -->
         <div id="keyword-tab" class="tab-content active">
             <div class="content">
                 <div class="section">
                     <div class="section-title">
-                        <span class="icon">📝</span>
-                        正则表达式
+                        <span class="icon">📝</span>正则表达式
                     </div>
-                    <textarea class="regex-input" 
-                           id="keywordRegexInput" 
-                           placeholder="输入正则表达式，例如：\b(moomoo|futu)\b|富途">\b(moomoo|futu)\b|富途</textarea>
-                    
+                    <textarea class="regex-input" id="keywordRegexInput" placeholder="输入正则表达式，例如：\b(moomoo|futu)\b|富途">\b(moomoo|futu)\b|富途</textarea>
                     <div class="flags" id="keyword-flags">
                         <label><input type="checkbox" checked> i - 不区分大小写</label>
                         <label><input type="checkbox" checked> g - 全局匹配</label>
                         <label><input type="checkbox"> m - 多行模式</label>
-                        <label><input type="checkbox"> s - 单行模式 (dotAll)</label>
-                        <label><input type="checkbox" checked> u - Unicode模式</label>
+                        <label><input type="checkbox"> s - 单行模式</label>
+                        <label><input type="checkbox"> u - Unicode模式 (⚠️可能影响\b边界)</label>
                     </div>
-                    
                     <button class="test-button" onclick="testRegex('keyword')">🚀 开始测试</button>
-                    
                     <div class="stats" id="keyword-stats" style="display: none;">
                         <div class="stat-card">
                             <div class="stat-number" id="keyword-totalCount">0</div>
@@ -350,20 +338,16 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="section">
                     <div class="section-title">
-                        <span class="icon">📋</span>
-                        测试关键词（每行一个）
+                        <span class="icon">📋</span>测试关键词（每行一个）
                     </div>
-                    <textarea id="keywordInput" placeholder="输入测试关键词，每行一个，例如：&#10;moomoo app&#10;futu securities&#10;富途证券"></textarea>
+                    <textarea id="keywordInput" placeholder="输入测试关键词，每行一个"></textarea>
                 </div>
             </div>
-            
             <div style="padding: 0 30px 30px 30px;">
                 <div class="section-title">
-                    <span class="icon">📊</span>
-                    测试结果
+                    <span class="icon">📊</span>测试结果
                 </div>
                 <div class="results" id="keyword-results">
                     <div class="empty-state">
@@ -374,28 +358,21 @@
             </div>
         </div>
         
-        <!-- URL正则标签页内容 -->
         <div id="url-tab" class="tab-content">
             <div class="content">
                 <div class="section">
                     <div class="section-title">
-                        <span class="icon">🔗</span>
-                        正则表达式
+                        <span class="icon">🔗</span>正则表达式
                     </div>
-                    <textarea class="regex-input" 
-                           id="urlRegexInput" 
-                           placeholder="输入URL正则表达式，例如：^https?://(www\.)?(moomoo|futu)\.com">^https?://(www\.)?(moomoo|futu)\.com</textarea>
-                    
+                    <textarea class="regex-input" id="urlRegexInput" placeholder="输入URL正则表达式">^https?://(www\.)?(moomoo|futu)\.com</textarea>
                     <div class="flags" id="url-flags">
                         <label><input type="checkbox" checked> i - 不区分大小写</label>
                         <label><input type="checkbox" checked> g - 全局匹配</label>
                         <label><input type="checkbox"> m - 多行模式</label>
-                        <label><input type="checkbox"> s - 单行模式 (dotAll)</label>
-                        <label><input type="checkbox" checked> u - Unicode模式</label>
+                        <label><input type="checkbox"> s - 单行模式</label>
+                        <label><input type="checkbox"> u - Unicode模式</label>
                     </div>
-                    
                     <button class="test-button" onclick="testRegex('url')">🚀 开始测试</button>
-                    
                     <div class="stats" id="url-stats" style="display: none;">
                         <div class="stat-card">
                             <div class="stat-number" id="url-totalCount">0</div>
@@ -411,20 +388,16 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="section">
                     <div class="section-title">
-                        <span class="icon">🌐</span>
-                        测试URL（每行一个）
+                        <span class="icon">🌐</span>测试URL（每行一个）
                     </div>
-                    <textarea id="urlInput" placeholder="输入测试URL，每行一个，例如：&#10;https://www.moomoo.com&#10;https://www.futu5.com&#10;https://futuhk.com"></textarea>
+                    <textarea id="urlInput" placeholder="输入测试URL，每行一个"></textarea>
                 </div>
             </div>
-            
             <div style="padding: 0 30px 30px 30px;">
                 <div class="section-title">
-                    <span class="icon">📊</span>
-                    测试结果
+                    <span class="icon">📊</span>测试结果
                 </div>
                 <div class="results" id="url-results">
                     <div class="empty-state">
@@ -437,22 +410,13 @@
     </div>
 
     <script>
-        // 切换标签页
         function switchTab(tabName) {
-            // 移除所有标签的active类
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // 添加active类到当前标签
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById(tabName + '-tab').classList.add('active');
         }
         
-        // 测试正则表达式
         function testRegex(type) {
             const regexInput = document.getElementById(type + 'RegexInput');
             const testInput = document.getElementById(type + 'Input');
@@ -472,7 +436,6 @@
                 return;
             }
             
-            // 获取标志
             const flags = [];
             const flagsContainer = document.getElementById(type + '-flags');
             const checkboxes = flagsContainer.querySelectorAll('input[type="checkbox"]');
@@ -491,7 +454,6 @@
                 return;
             }
             
-            // 测试每个字符串
             let matchCount = 0;
             let noMatchCount = 0;
             let resultsHTML = '';
@@ -526,14 +488,12 @@
             
             resultsDiv.innerHTML = resultsHTML;
             
-            // 更新统计
             document.getElementById(type + '-totalCount').textContent = testStrings.length;
             document.getElementById(type + '-matchCount').textContent = matchCount;
             document.getElementById(type + '-noMatchCount').textContent = noMatchCount;
             statsDiv.style.display = 'grid';
         }
         
-        // HTML转义
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
