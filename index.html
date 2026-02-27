@@ -3,147 +3,537 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>品牌词正则测试工具</title>
+    <title>正则测试工具</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             padding: 20px;
-            background: #f5f5f5;
         }
+        
         .container {
+            max-width: 1400px;
+            margin: 0 auto;
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
         }
-        h1 {
-            color: #333;
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
             text-align: center;
         }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab:hover {
+            background: #fff;
+            color: #667eea;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .section {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 20px;
+        }
+        
         textarea {
             width: 100%;
-            height: 150px;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 14px;
-            font-family: monospace;
-            margin-bottom: 20px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            resize: vertical;
+            transition: border-color 0.3s;
         }
-        button {
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .regex-input {
             width: 100%;
-            padding: 12px;
-            background: #4CAF50;
+            padding: 15px;
+            min-height: 80px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            transition: border-color 0.3s;
+            resize: vertical;
+        }
+        
+        .regex-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .flags {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .flags label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .flags input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 15px 40px;
+            border-radius: 10px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
         }
-        button:hover {
-            background: #45a049;
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
+        
+        .test-button:active {
+            transform: translateY(0);
+        }
+        
         .results {
             margin-top: 20px;
         }
+        
         .result-item {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            font-family: monospace;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
         }
-        .matched {
+        
+        .result-item.match {
             background: #d4edda;
             border-left: 4px solid #28a745;
+            color: #155724;
         }
-        .not-matched {
+        
+        .result-item.no-match {
             background: #f8d7da;
             border-left: 4px solid #dc3545;
+            color: #721c24;
         }
-        .summary {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e7f3ff;
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .result-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .result-text {
+            flex: 1;
+            word-break: break-all;
+            font-weight: 600;
+        }
+        
+        .result-matches {
+            margin-left: 28px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 5px;
-            border-left: 4px solid #2196F3;
+            font-size: 13px;
+            color: #333;
+        }
+        
+        .match-label {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔍 品牌词正则测试工具</h1>
+        <div class="header">
+            <h1>🎯 正则测试工具</h1>
+            <p>测试你的正则表达式是否能准确捕获目标内容</p>
+        </div>
         
-        <label for="keywords"><strong>输入关键词（每行一个）：</strong></label>
-        <textarea id="keywords" placeholder="momo heechul&#10;webull&#10;富途&#10;futu"></textarea>
+        <!-- 标签页 -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('keyword')">
+                📝 词正则
+            </div>
+            <div class="tab" onclick="switchTab('url')">
+                🔗 URL正则
+            </div>
+        </div>
         
-        <button onclick="runTest()">🚀 开始测试</button>
+        <!-- 词正则标签页内容 -->
+        <div id="keyword-tab" class="tab-content active">
+            <div class="content">
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📝</span>
+                        正则表达式
+                    </div>
+                    <textarea class="regex-input" 
+                           id="keywordRegexInput" 
+                           placeholder="输入正则表达式，例如：\b(moomoo|futu)\b|富途">\b(moomoo|futu)\b|富途</textarea>
+                    
+                    <div class="flags" id="keyword-flags">
+                        <label><input type="checkbox" checked> i - 不区分大小写</label>
+                        <label><input type="checkbox" checked> g - 全局匹配</label>
+                        <label><input type="checkbox"> m - 多行模式</label>
+                        <label><input type="checkbox"> s - 单行模式 (dotAll)</label>
+                        <label><input type="checkbox" checked> u - Unicode模式</label>
+                    </div>
+                    
+                    <button class="test-button" onclick="testRegex('keyword')">🚀 开始测试</button>
+                    
+                    <div class="stats" id="keyword-stats" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-number" id="keyword-totalCount">0</div>
+                            <div class="stat-label">总测试数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="keyword-matchCount">0</div>
+                            <div class="stat-label">匹配成功</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="keyword-noMatchCount">0</div>
+                            <div class="stat-label">未匹配</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">📋</span>
+                        测试关键词（每行一个）
+                    </div>
+                    <textarea id="keywordInput" placeholder="输入测试关键词，每行一个，例如：&#10;moomoo app&#10;futu securities&#10;富途证券"></textarea>
+                </div>
+            </div>
+            
+            <div style="padding: 0 30px 30px 30px;">
+                <div class="section-title">
+                    <span class="icon">📊</span>
+                    测试结果
+                </div>
+                <div class="results" id="keyword-results">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎯</div>
+                        <div>输入正则表达式和测试关键词，点击"开始测试"查看结果</div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        <div id="results" class="results"></div>
+        <!-- URL正则标签页内容 -->
+        <div id="url-tab" class="tab-content">
+            <div class="content">
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🔗</span>
+                        正则表达式
+                    </div>
+                    <textarea class="regex-input" 
+                           id="urlRegexInput" 
+                           placeholder="输入URL正则表达式，例如：^https?://(www\.)?(moomoo|futu)\.com">^https?://(www\.)?(moomoo|futu)\.com</textarea>
+                    
+                    <div class="flags" id="url-flags">
+                        <label><input type="checkbox" checked> i - 不区分大小写</label>
+                        <label><input type="checkbox" checked> g - 全局匹配</label>
+                        <label><input type="checkbox"> m - 多行模式</label>
+                        <label><input type="checkbox"> s - 单行模式 (dotAll)</label>
+                        <label><input type="checkbox" checked> u - Unicode模式</label>
+                    </div>
+                    
+                    <button class="test-button" onclick="testRegex('url')">🚀 开始测试</button>
+                    
+                    <div class="stats" id="url-stats" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-number" id="url-totalCount">0</div>
+                            <div class="stat-label">总测试数</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="url-matchCount">0</div>
+                            <div class="stat-label">匹配成功</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="url-noMatchCount">0</div>
+                            <div class="stat-label">未匹配</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <span class="icon">🌐</span>
+                        测试URL（每行一个）
+                    </div>
+                    <textarea id="urlInput" placeholder="输入测试URL，每行一个，例如：&#10;https://www.moomoo.com&#10;https://www.futu5.com&#10;https://futuhk.com"></textarea>
+                </div>
+            </div>
+            
+            <div style="padding: 0 30px 30px 30px;">
+                <div class="section-title">
+                    <span class="icon">📊</span>
+                    测试结果
+                </div>
+                <div class="results" id="url-results">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎯</div>
+                        <div>输入正则表达式和测试URL，点击"开始测试"查看结果</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 品牌词正则
-        const brandPattern = /\b(moomoo|moomou|moumou|momo|mumu|moomo|moumoo|mumo|moo|moo moo|moo mok|futu|futunn|fu tu)\b|ｍｏｏ|富途|富 途|富途牛牛|ムー|もー|モー|もう|富淘|富图|富屠|富土|富圖|富牛牛|富塗/i;
-
-        function runTest() {
-            const textarea = document.getElementById('keywords');
-            const resultsDiv = document.getElementById('results');
+        // 切换标签页
+        function switchTab(tabName) {
+            // 移除所有标签的active类
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
             
-            // 获取并处理输入
-            const keywords = textarea.value
-                .split('\n')
-                .map(k => k.trim())
-                .filter(k => k.length > 0);
+            // 添加active类到当前标签
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+        
+        // 测试正则表达式
+        function testRegex(type) {
+            const regexInput = document.getElementById(type + 'RegexInput');
+            const testInput = document.getElementById(type + 'Input');
+            const resultsDiv = document.getElementById(type + '-results');
+            const statsDiv = document.getElementById(type + '-stats');
             
-            if (keywords.length === 0) {
-                resultsDiv.innerHTML = '<div class="summary">⚠️ 请输入至少一个关键词</div>';
+            const regexPattern = regexInput.value.trim();
+            const testStrings = testInput.value.trim().split('\n').filter(s => s.trim());
+            
+            if (!regexPattern) {
+                alert('请输入正则表达式！');
                 return;
             }
             
-            // 测试每个关键词
-            let matchedCount = 0;
-            let notMatchedCount = 0;
-            let html = '';
+            if (testStrings.length === 0) {
+                alert('请输入测试内容！');
+                return;
+            }
             
-            keywords.forEach(keyword => {
-                const lowerKeyword = keyword.toLowerCase();
-                const isMatch = brandPattern.test(lowerKeyword);
-                const matchResult = isMatch ? lowerKeyword.match(brandPattern) : null;
-                
-                if (isMatch) {
-                    matchedCount++;
-                    html += `
-                        <div class="result-item matched">
-                            ✅ <strong>${escapeHtml(keyword)}</strong>
-                            <br>
-                            <small>匹配内容: "${escapeHtml(matchResult[0])}"</small>
+            // 获取标志
+            const flags = [];
+            const flagsContainer = document.getElementById(type + '-flags');
+            const checkboxes = flagsContainer.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach((checkbox, index) => {
+                if (checkbox.checked) {
+                    const flagMap = ['i', 'g', 'm', 's', 'u'];
+                    flags.push(flagMap[index]);
+                }
+            });
+            
+            let regex;
+            try {
+                regex = new RegExp(regexPattern, flags.join(''));
+            } catch (e) {
+                alert('正则表达式语法错误：' + e.message);
+                return;
+            }
+            
+            // 测试每个字符串
+            let matchCount = 0;
+            let noMatchCount = 0;
+            let resultsHTML = '';
+            
+            testStrings.forEach(str => {
+                const matches = str.match(regex);
+                if (matches) {
+                    matchCount++;
+                    resultsHTML += `
+                        <div class="result-item match">
+                            <div class="result-header">
+                                <span class="result-icon">✅</span>
+                                <span class="result-text">${escapeHtml(str)}</span>
+                            </div>
+                            <div class="result-matches">
+                                <span class="match-label">匹配内容：</span>${matches.map(m => escapeHtml(m)).join(', ')}
+                            </div>
                         </div>
                     `;
                 } else {
-                    notMatchedCount++;
-                    html += `
-                        <div class="result-item not-matched">
-                            ❌ <strong>${escapeHtml(keyword)}</strong>
+                    noMatchCount++;
+                    resultsHTML += `
+                        <div class="result-item no-match">
+                            <div class="result-header">
+                                <span class="result-icon">❌</span>
+                                <span class="result-text">${escapeHtml(str)}</span>
+                            </div>
                         </div>
                     `;
                 }
             });
             
-            // 添加汇总
-            html = `
-                <div class="summary">
-                    <strong>📊 测试汇总</strong><br>
-                    总计: ${keywords.length} 个关键词<br>
-                    ✅ 命中品牌词: ${matchedCount} 个<br>
-                    ❌ 未命中: ${notMatchedCount} 个
-                </div>
-            ` + html;
+            resultsDiv.innerHTML = resultsHTML;
             
-            resultsDiv.innerHTML = html;
+            // 更新统计
+            document.getElementById(type + '-totalCount').textContent = testStrings.length;
+            document.getElementById(type + '-matchCount').textContent = matchCount;
+            document.getElementById(type + '-noMatchCount').textContent = noMatchCount;
+            statsDiv.style.display = 'grid';
         }
         
+        // HTML转义
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
